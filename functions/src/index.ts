@@ -3,9 +3,14 @@ import { Request } from 'express';
 import { RawgService } from "./services/rawg.service";
 import { createRawgHandler } from "./factories/handler-factory";
 import { Game } from "./types/game.schema";
+import { saveToRealtimeDatabase } from "./clients/firebase.client";
 
 export const topRatedThisYear = createRawgHandler(async (service: RawgService): Promise<Game[]> => {
-    return service.getTopRatedGamesOfYear();
+	const games: Game[] = await service.getTopRatedGamesOfYear();
+	
+	await saveToRealtimeDatabase("/topRatedThisYear", games)
+	
+    return games;
 });
 
 export const gamesByGenre = createRawgHandler(async (service: RawgService, req: Request): Promise<Game[]> => {
