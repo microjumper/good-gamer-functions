@@ -1,8 +1,7 @@
 ﻿import { AxiosInstance } from 'axios';
 
-import { Game, RawgResponse } from "../types/game.schema";
-import { RawgResponseSchema } from "../types/game.schema";
-// import { logger } from "firebase-functions";
+import { Game, GameDetail, GameDetailSchema } from "../types/game.schema";
+import { RawgResponse, RawgResponseSchema } from "../types/rawg.schema";
 
 export class RawgService {
     private client: AxiosInstance;
@@ -20,27 +19,13 @@ export class RawgService {
             },
         });
         
-        // logger.debug(res.request.path);
-        // logger.debug(res.data);
-        
         const parsed = RawgResponseSchema.parse(res.data);
         return parsed.results;
     }
 
-    async getGamesByGenre(genreSlugs: string, pageSize = 10) {
-        const res = await this.client.get<RawgResponse>('/games', {
-            params: { 
-                genres: genreSlugs, 
-                ordering: '-rating', 
-                page_size: pageSize 
-            },
-        });
-        
-        // logger.debug(res.request.path);
-        // logger.debug(res.data);
-        
-        const parsed = RawgResponseSchema.parse(res.data);
-        return parsed.results;
+    async getGameById(gameId: number): Promise<GameDetail> {
+        const res = await this.client.get<GameDetail>(`/games/${gameId}`);
+        return GameDetailSchema.parse(res.data);
     }
 }
 

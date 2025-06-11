@@ -6,13 +6,14 @@ import { Request } from 'express';
 
 import { createRawgClient } from "../clients/rawg.client";
 import { RawgService } from "../services/rawg.service";
-import { Game } from "../types/game.schema";
+import { Game, GameDetail } from "../types/game.schema";
 
 const RAWG_API_KEY = defineSecret('RAWG_API_KEY');
 
-type HandlerCallback = (service: RawgService, req: Request) => Promise<Game[]>;
+type AllowedRawgTypes = Game | Game[] | GameDetail;
+type HandlerCallback<T extends AllowedRawgTypes> = (service: RawgService, req: Request) => Promise<T>;
 
-export function createRawgHandler(callback: HandlerCallback) {
+export function createRawgHandler<T extends AllowedRawgTypes>(callback: HandlerCallback<T>) {
 	return onRequest(
 		{ secrets: [RAWG_API_KEY] },
 		async (req, res) => {
