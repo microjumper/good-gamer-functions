@@ -21,10 +21,10 @@ import { readFromRealtimeDatabase, saveToRealtimeDatabase } from "./clients/fire
  */
 export const topRatedThisYear = createRawgHandler(async (service: RawgService): Promise<Game[]> => {
 	const games: Game[] = await service.getTopRatedGamesOfYear();
-	
+
 	await saveToRealtimeDatabase("/topRatedThisYear", games);
-	
-    return games;
+
+	return games;
 });
 
 /**
@@ -37,7 +37,6 @@ export const topRatedThisYear = createRawgHandler(async (service: RawgService): 
  *
  * Throws an error if a game ID is not provided or if the retrieval process encounters an issue.
  *
- * @constant
  * @type {function}
  * @param {RawgService} service - The RAWG service instance used for fetching game data.
  * @param {Request} req - The HTTP request object containing the game ID in the query parameters.
@@ -45,7 +44,7 @@ export const topRatedThisYear = createRawgHandler(async (service: RawgService): 
  */
 export const gameById = createRawgHandler(async (service: RawgService, req: Request): Promise<GameDetail> => {
 	const gameId = Number(req.query.gameId);
-	
+
 	if (!gameId) {
 		throw new Error('Game ID is required');
 	}
@@ -59,6 +58,27 @@ export const gameById = createRawgHandler(async (service: RawgService, req: Requ
 	// If not found, get from RAWG and save to Firebase
 	const gameDetail = await service.getGameById(gameId);
 	await saveToRealtimeDatabase(`/games/${gameId}`, gameDetail);
-	
+
 	return gameDetail;
 });
+
+/**
+ * Handles the search for games by name.
+ *
+ * This function searches for games using a provided name query and returns the results directly from the RAWG API.
+ *
+ * @type {function}
+ * @param {RawgService} service - The RAWG service instance used for searching games.
+ * @param {Request} req - The HTTP request object containing the search query.
+ * @returns {Promise<Game[]>} A promise that resolves to an array of games matching the search criteria.
+ */
+export const searchByName = createRawgHandler(async (service: RawgService, req: Request): Promise<Game[]> => {
+	const searchQuery = req.query.name?.toString();
+
+	if (!searchQuery) {
+		throw new Error('Search query is required');
+	}
+
+	return await service.searchGamesByName(searchQuery);
+});
+

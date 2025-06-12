@@ -27,7 +27,20 @@ export class RawgService {
         const res = await this.client.get<GameDetail>(`/games/${gameId}`);
         return GameDetailSchema.parse(res.data);
     }
+
+    async searchGamesByName(searchQuery: string, pageSize = 10): Promise<Game[]> {
+        const res = await this.client.get<RawgResponse>('/games', {
+            params: {
+                search: searchQuery,
+                page_size: pageSize,
+            },
+        });
+
+        const parsed = RawgResponseSchema.parse(res.data);
+        return parsed.results;
+    }
 }
+
 
 function getYearToDateRange(): string {
     const now = new Date();
