@@ -13,6 +13,12 @@ const RAWG_API_KEY = defineSecret('RAWG_API_KEY');
 type AllowedRawgTypes = Game | Game[] | GameDetail;
 type HandlerCallback<T extends AllowedRawgTypes> = (service: RawgService, req: Request) => Promise<T>;
 
+/**
+ * Creates a handler for processing RAWG API requests with the provided callback function.
+ *
+ * @param {HandlerCallback<T>} callback - A function that processes the RAWG service instance and request, and returns data to be sent in the response.
+ * @return {Function} Returns a request handler function that manages RAWG API interactions and executes the callback.
+ */
 export function createRawgHandler<T extends AllowedRawgTypes>(callback: HandlerCallback<T>) {
 	return onRequest(
 		{ secrets: [RAWG_API_KEY] },
